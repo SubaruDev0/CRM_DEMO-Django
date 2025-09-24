@@ -1,10 +1,13 @@
-# apps/clients/urls.py
+# apps/clients/urls.py - REEMPLAZAR COMPLETO
 from django.urls import path
 from . import views
 
 app_name = 'clients'  # namespace de la app
 
 urlpatterns = [
+    # Dashboard principal
+    path('', views.dashboard_view, name='dashboard'),
+    
     # Clientes
     path('clients/', views.ClientListView.as_view(), name='client_list'),
     path('clients/<int:pk>/', views.ClientDetailView.as_view(), name='client_detail'),

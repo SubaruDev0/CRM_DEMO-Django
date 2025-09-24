@@ -1,11 +1,132 @@
-<!-- templates/clients/report_form.html -->
+<!-- templates/clients/report_form.html - CREAR -->
 {% extends "base.html" %}
+
+{% block title %}
+    {% if object %}Editar Reporte{% else %}Crear Reporte{% endif %} - CRM Demo
+{% endblock %}
+
 {% block content %}
-<h2>Agregar/Editar Reporte</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
-</form>
-<a href="{% url 'clients:report_list' %}">Volver a Reportes</a> <!-- CORREGIDO -->
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'clients:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'clients:report_list' %}">Reportes</a></li>
+            <li class="breadcrumb-item active">
+                {% if object %}Editar{% else %}Crear{% endif %} Reporte
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-file-plus"></i> 
+                        {% if object %}Editar Reporte{% else %}Crear Nuevo Reporte{% endif %}
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Campo Título -->
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="bi bi-card-text"></i> Título del Reporte <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}"
+                                   id="{{ form.title.id_for_label }}"
+                                   name="{{ form.title.name }}"
+                                   value="{% if form.title.value %}{{ form.title.value }}{% endif %}"
+                                   placeholder="Ingresa el título del reporte..."
+                                   required>
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.title.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Cliente -->
+                        <div class="mb-3">
+                            <label for="{{ form.client.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Cliente <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select {% if form.client.errors %}is-invalid{% endif %}"
+                                    id="{{ form.client.id_for_label }}"
+                                    name="{{ form.client.name }}"
+                                    required>
+                                <option value="">Selecciona un cliente...</option>
+                                {% for choice in form.client.field.choices %}
+                                    {% if choice.0 %}
+                                    <option value="{{ choice.0 }}" 
+                                            {% if form.client.value == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% if form.client.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.client.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Descripción -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-text"></i> Descripción
+                            </label>
+                            <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                                      id="{{ form.description.id_for_label }}"
+                                      name="{{ form.description.name }}"
+                                      rows="4"
+                                      placeholder="Describe el contenido del reporte...">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.description.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg"></i> 
+                                {% if object %}Actualizar{% else %}Crear{% endif %} Reporte
+                            </button>
+                            <a href="{% url 'clients:report_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para validación -->
+<script>
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
 {% endblock %}

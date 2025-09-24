@@ -1,10 +1,71 @@
+<!-- templates/clients/report_confirm_delete.html - ACTUALIZAR -->
 {% extends "base.html" %}
+
+{% block title %}Eliminar Reporte - CRM Demo{% endblock %}
+
 {% block content %}
-<h2>Eliminar Reporte</h2>
-<p>¿Está seguro que desea eliminar "{{ report.title }}"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Sí, eliminar</button>
-</form>
-<a href="{% url 'clients:report_list' %}">Cancelar</a> <!-- CORREGIDO -->
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'clients:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'clients:report_list' %}">Reportes</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'clients:report_detail' object.pk %}">{{ object.title|truncatechars:20 }}</a></li>
+            <li class="breadcrumb-item active">Eliminar</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        Confirmar Eliminación
+                    </h4>
+                </div>
+                
+                <div class="card-body text-center">
+                    <i class="bi bi-file-text display-1 text-danger mb-3"></i>
+                    
+                    <h5>¿Estás seguro de que deseas eliminar este reporte?</h5>
+                    
+                    <div class="alert alert-warning text-start mt-3">
+                        <h6><i class="bi bi-info-circle"></i> Información del reporte:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Título:</strong> {{ object.title }}</li>
+                            <li><strong>Cliente:</strong> {{ object.client.name }}</li>
+                            <li><strong>Creado:</strong> {{ object.created_at|date:"d/m/Y" }}</li>
+                            <li><strong>Archivos adjuntos:</strong> {{ object.files.count }}</li>
+                        </ul>
+                    </div>
+
+                    {% if object.files.count > 0 %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>¡Atención!</strong> Este reporte tiene {{ object.files.count }} archivo(s) adjunto(s) 
+                        que también serán eliminados permanentemente.
+                    </div>
+                    {% endif %}
+
+                    <p class="text-muted">
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+                
+                <div class="card-footer">
+                    <form method="post" class="d-flex gap-2 justify-content-center">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Sí, eliminar reporte
+                        </button>
+                        <a href="{% url 'clients:report_detail' object.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

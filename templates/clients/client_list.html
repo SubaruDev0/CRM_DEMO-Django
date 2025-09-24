@@ -1,35 +1,239 @@
 <!-- templates/clients/client_list.html -->
 {% extends "base.html" %}
+
+{% block title %}Clientes - CRM Demo{% endblock %}
+
 {% block content %}
-<h2>Clientes</h2>
-<a href="{% url 'clients:client_add' %}">Agregar Cliente</a>
-<a href="{% url 'clients:report_list' %}">Ver Reportes</a> <!-- CORREGIDO -->
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'clients:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Clientes</li>
+        </ol>
+    </nav>
 
-<form method="get">
-    <input type="text" name="q" placeholder="Buscar cliente..." value="{{ request.GET.q }}">
-    <button type="submit">Buscar</button>
-</form>
-
-<ul>
-    {% if is_paginated %}
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-        <a
-            href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
-        {% endif %}
-        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-        <a
-            href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
-        {% endif %}
+    <!-- Header con acciones -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-people"></i> Gestión de Clientes</h1>
+            <p class="text-muted mb-0">Total: {{ clients.paginator.count }} cliente{{ clients.paginator.count|pluralize }}</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'clients:client_add' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Agregar Cliente
+            </a>
+            <a href="{% url 'clients:report_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-file-text"></i> Ver Reportes
+            </a>
+        </div>
     </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label for="searchInput" class="form-label">Buscar cliente</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput"
+                               name="q" 
+                               placeholder="Buscar por nombre, email o teléfono..." 
+                               value="{{ request.GET.q }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+            {% if request.GET.q %}
+            <div class="mt-2">
+                <span class="badge bg-light text-dark">
+                    Resultados para: "{{ request.GET.q }}"
+                    <a href="{% url 'clients:client_list' %}" class="text-danger ms-2">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Lista de clientes -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-list-ul"></i> Lista de Clientes</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if clients %}
+                <div class="list-group list-group-flush">
+                    {% for client in clients %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-3">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'clients:client_detail' client.pk %}" 
+                                               class="text-decoration-none text-dark">
+                                                {{ client.name }}
+                                            </a>
+                                        </h6>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-envelope"></i> {{ client.email }}
+                                            {% if client.phone %}
+                                            · <i class="bi bi-telephone"></i> {{ client.phone }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-muted small">
+                                    <i class="bi bi-file-text"></i> 
+                                    {{ client.report_set.count }} reporte{{ client.report_set.count|pluralize }}
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="btn-group">
+                                    <a href="{% url 'clients:client_detail' client.pk %}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'clients:client_edit' client.pk %}" 
+                                       class="btn btn-sm btn-outline-warning" 
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Estado vacío -->
+                <div class="text-center py-5">
+                    <i class="bi bi-people display-1 text-muted"></i>
+                    <h4 class="mt-3">No hay clientes</h4>
+                    <p class="text-muted">
+                        {% if request.GET.q %}
+                            No se encontraron clientes que coincidan con "{{ request.GET.q }}"
+                        {% else %}
+                            Comienza agregando tu primer cliente al sistema.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'clients:client_add' %}" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Agregar Primer Cliente
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <nav aria-label="Paginación de clientes" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                    <i class="bi bi-chevron-left"></i> Anterior
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-left"></i> Anterior</span>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" 
+                       href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Siguiente <i class="bi bi-chevron-right"></i></span>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="text-center text-muted small">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </div>
+    </nav>
     {% endif %}
+</div>
 
-    {% for client in clients %}
-    <li>
-        <a href="{% url 'clients:client_detail' client.pk %}">{{ client.name }}</a>
-    </li>
-    {% endfor %}
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.375rem;
+        margin-left: 0.25rem;
+    }
+</style>
 
-</ul>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus en la búsqueda
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && !searchInput.value) {
+            searchInput.focus();
+        }
+        
+        // Confirmación para limpiar búsqueda
+        const clearSearch = document.querySelector('a[href*="client_list"]');
+        if (clearSearch) {
+            clearSearch.addEventListener('click', function(e) {
+                if (this.querySelector('.bi-x-circle')) {
+                    if (!confirm('¿Limpiar búsqueda y mostrar todos los clientes?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
