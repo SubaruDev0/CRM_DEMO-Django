@@ -1,0 +1,9 @@
+<!-- templates/clients/report_detail.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ report.title }}</h2>
+<p>{{ report.description }}</p>
+<a href="{% url 'clients:report_edit' report.pk %}">Editar</a>
+<a href="{% url 'clients:report_delete' report.pk %}">Eliminar</a>
+<a href="{% url 'clients:report_list' %}">Volver a Reportes</a> <!-- CORREGIDO -->
+{% endblock %}

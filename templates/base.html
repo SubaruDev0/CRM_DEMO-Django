@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM Demo</title>
+</head>
+<body>
+    <header>
+        <h1>CRM Demo</h1>
+        <nav>
+            <a href="{% url 'clients:client_list' %}">Clientes</a> |
+            <a href="{% url 'clients:report_list' %}">Reportes</a>
+        </nav>
+        <hr>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

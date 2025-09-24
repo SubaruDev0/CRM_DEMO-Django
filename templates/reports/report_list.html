@@ -1,0 +1,33 @@
+<!-- templates/clients/report_list.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Reportes</h2>
+<a href="{% url 'clients:report_add' %}">Agregar Reporte</a>
+
+<form method="get">
+    <input type="text" name="q" placeholder="Buscar reporte..." value="{{ request.GET.q }}">
+    <button type="submit">Buscar</button>
+</form>
+
+<ul>
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a
+            href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+        {% endif %}
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a
+            href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% for report in reports %}
+    <li>
+        <a href="{% url 'clients:report_detail' report.pk %}">{{ report.title }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
